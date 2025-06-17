@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Buckeye Connect</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body class="bg-gray-100">
+  <nav class="bg-red-600 text-white p-4 shadow-lg"><img src="/images/link-solid.svg" alt="Buckeye Link" class="h-6 w-6 inline mr-2">Buckeye Connect</nav>
+  <div class="container mx-auto px-4 py-8">
+    <div id="bio-box" class="bg-white rounded-lg shadow-xl p-6 mb-6 max-w-md mx-auto h-64 border border-red-200">
+      <!-- Profile Circle -->
+      <div class="w-20 h-20 bg-gray-300 rounded-full mx-auto mb-4 flex items-center justify-center">
+        <!-- Placeholder for profile image -->
+      </div>
+      
+      <!-- Name -->
+      <h2 class="text-xl font-bold text-gray-800 text-center mb-2">Eric Ishekwene</h2>
+      
+      <!-- Bio -->
+      <p class="text-gray-600 text-center mb-4">OSU Student | Engineering Major | Go Bucks! 🌰</p>
+      
+      <!-- Edit Profile Button -->
+      <button class="flex items-center justify-center mx-auto bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors">
+        <img src="/images/link-solid.svg" alt="Edit" class="h-4 w-4 mr-2 filter brightness-0 invert">
+        Edit Profile
+      </button>
+    </div>
+    
+    <ul class="space-y-2">
+      <% links.forEach(link => { %>
+        <li>
+          <a href="<%= link.url %>" target="_blank" class="text-red-600 hover:text-red-800 underline text-lg"><%= link.label %></a>
+        </li>
+      <% }) %>
+    </ul>
+  </div>
+</body>
+</html>

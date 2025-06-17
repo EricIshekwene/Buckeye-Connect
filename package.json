@@ -1,0 +1,26 @@
+{
+  "name": "buckeye-connect",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "nodemon app.js",
+    "start:bs": "browser-sync start --proxy 'localhost:3000' --files 'views/*.ejs, public/*.css'",
+    "build:css": "tailwindcss -i ./public/tailwind.css -o ./public/style.css --watch",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "ejs": "^3.1.10",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "browser-sync": "^3.0.4",
+    "nodemon": "^3.1.10",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.3"
+  }
+}
