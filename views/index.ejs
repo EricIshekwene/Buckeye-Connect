@@ -28,7 +28,10 @@
       </button>
     </div>
     
-    <% if (locals.links){ links.forEach(link => { %>
+    
+    
+    <!-- User Added Links (from database) -->
+    <% if (locals.addedLinks && addedLinks.length > 0){ addedLinks.forEach(link => { %>
       <div class="max-w-md mx-auto mb-8">
         <div class="rounded-lg bg-white text-gray-800 group hover:scale-[1.02] transition-all duration-200 border-2 border-transparent hover:border-red-500/20 shadow-md hover:shadow-lg">
           <div class="p-0">
