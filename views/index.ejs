@@ -28,233 +28,28 @@
       </button>
     </div>
     
-    <!-- Blank Button Card -->
-    <div class="max-w-md mx-auto mb-8">
-      <div class="rounded-lg bg-white text-gray-800 group hover:scale-[1.02] transition-all duration-200 border-2 border-transparent hover:border-red-500/20 shadow-md hover:shadow-lg">
-        <div class="p-0">
-          <button class="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 text-white hover:opacity-90 transition-opacity w-full">
-            <div class="flex items-center space-x-3">
-              <img src="/images/instagram.svg" alt="Instagram" class="w-5 h-5 filter brightness-0 invert">
-              <span class="font-semibold">Instagram</span>
-            </div>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 opacity-70">
-              <path d="M15 3h6v6"></path>
-              <path d="M10 14 21 3"></path>
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-            </svg>
-          </button>
+    <% links.forEach(link => { %>
+      <div class="max-w-md mx-auto mb-8">
+        <div class="rounded-lg bg-white text-gray-800 group hover:scale-[1.02] transition-all duration-200 border-2 border-transparent hover:border-red-500/20 shadow-md hover:shadow-lg">
+          <div class="p-0">
+            <a href="<%= link.url %>" target="_blank">
+              <button class="flex items-center justify-between p-4 rounded-lg <%= link.bgClass %> <%= link.textColor %> hover:opacity-90 transition-opacity w-full">
+                <div class="flex items-center space-x-3">
+                  <img src="<%= link.icon %>" alt="<%= link.name %>" class="w-5 h-5 <%= link.name === 'Snapchat' ? '' : 'filter brightness-0 invert' %>">
+                  <span class="font-semibold"><%= link.name %></span>
+                </div>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 opacity-70">
+                  <path d="M15 3h6v6"></path>
+                  <path d="M10 14 21 3"></path>
+                  <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                </svg>
+              </button>
+            </a>
+          </div>
         </div>
       </div>
-    </div>
+    <% }) %>
     
-    <!-- LinkedIn Button Card -->
-    <div class="max-w-md mx-auto mb-8">
-      <div class="rounded-lg bg-white text-gray-800 group hover:scale-[1.02] transition-all duration-200 border-2 border-transparent hover:border-red-500/20 shadow-md hover:shadow-lg">
-        <div class="p-0">
-          <button class="flex items-center justify-between p-4 rounded-lg bg-blue-600 text-white hover:opacity-90 transition-opacity w-full">
-            <div class="flex items-center space-x-3">
-              <img src="/images/linkedin.svg" alt="LinkedIn" class="w-5 h-5 filter brightness-0 invert">
-              <span class="font-semibold">LinkedIn</span>
-            </div>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 opacity-70">
-              <path d="M15 3h6v6"></path>
-              <path d="M10 14 21 3"></path>
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <!-- YouTube Button Card -->
-    <div class="max-w-md mx-auto mb-8">
-      <div class="rounded-lg bg-white text-gray-800 group hover:scale-[1.02] transition-all duration-200 border-2 border-transparent hover:border-red-500/20 shadow-md hover:shadow-lg">
-        <div class="p-0">
-          <button class="flex items-center justify-between p-4 rounded-lg bg-red-600 text-white hover:opacity-90 transition-opacity w-full">
-            <div class="flex items-center space-x-3">
-              <img src="/images/youtube.svg" alt="YouTube" class="w-5 h-5 filter brightness-0 invert">
-              <span class="font-semibold">YouTube</span>
-            </div>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 opacity-70">
-              <path d="M15 3h6v6"></path>
-              <path d="M10 14 21 3"></path>
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Snapchat Button Card -->
-    <div class="max-w-md mx-auto mb-8">
-      <div class="rounded-lg bg-white text-gray-800 group hover:scale-[1.02] transition-all duration-200 border-2 border-transparent hover:border-red-500/20 shadow-md hover:shadow-lg">
-        <div class="p-0">
-          <button class="flex items-center justify-between p-4 rounded-lg bg-yellow-400 text-black hover:opacity-90 transition-opacity w-full">
-            <div class="flex items-center space-x-3">
-              <img src="/images/snapchat.svg" alt="Snapchat" class="w-5 h-5">
-              <span class="font-semibold">Snapchat</span>
-            </div>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 opacity-70">
-              <path d="M15 3h6v6"></path>
-              <path d="M10 14 21 3"></path>
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Spotify Button Card -->
-    <div class="max-w-md mx-auto mb-8">
-      <div class="rounded-lg bg-white text-gray-800 group hover:scale-[1.02] transition-all duration-200 border-2 border-transparent hover:border-red-500/20 shadow-md hover:shadow-lg">
-        <div class="p-0">
-          <button class="flex items-center justify-between p-4 rounded-lg bg-gradient-to-r from-green-500 to-black text-white hover:opacity-90 transition-opacity w-full">
-            <div class="flex items-center space-x-3">
-              <img src="/images/spotify.svg" alt="Spotify" class="w-5 h-5 filter brightness-0 invert">
-              <span class="font-semibold">Spotify</span>
-            </div>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 opacity-70">
-              <path d="M15 3h6v6"></path>
-              <path d="M10 14 21 3"></path>
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Apple Music Button Card -->
-    <div class="max-w-md mx-auto mb-8">
-      <div class="rounded-lg bg-white text-gray-800 group hover:scale-[1.02] transition-all duration-200 border-2 border-transparent hover:border-red-500/20 shadow-md hover:shadow-lg">
-        <div class="p-0">
-          <button class="flex items-center justify-between p-4 rounded-lg bg-pink-500 text-white hover:opacity-90 transition-opacity w-full">
-            <div class="flex items-center space-x-3">
-              <img src="/images/apple-music.svg" alt="Apple Music" class="w-5 h-5 filter brightness-0 invert">
-              <span class="font-semibold">Apple Music</span>
-            </div>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 opacity-70">
-              <path d="M15 3h6v6"></path>
-              <path d="M10 14 21 3"></path>
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Website Button Card -->
-    <div class="max-w-md mx-auto mb-8">
-      <div class="rounded-lg bg-white text-gray-800 group hover:scale-[1.02] transition-all duration-200 border-2 border-transparent hover:border-red-500/20 shadow-md hover:shadow-lg">
-        <div class="p-0">
-          <button class="flex items-center justify-between p-4 rounded-lg bg-blue-500 text-white hover:opacity-90 transition-opacity w-full">
-            <div class="flex items-center space-x-3">
-              <img src="/images/browser-safari.svg" alt="Website" class="w-5 h-5 filter brightness-0 invert">
-              <span class="font-semibold">Website</span>
-            </div>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 opacity-70">
-              <path d="M15 3h6v6"></path>
-              <path d="M10 14 21 3"></path>
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Email Button Card -->
-    <div class="max-w-md mx-auto mb-8">
-      <div class="rounded-lg bg-white text-gray-800 group hover:scale-[1.02] transition-all duration-200 border-2 border-transparent hover:border-red-500/20 shadow-md hover:shadow-lg">
-        <div class="p-0">
-          <button class="flex items-center justify-between p-4 rounded-lg bg-gray-600 text-white hover:opacity-90 transition-opacity w-full">
-            <div class="flex items-center space-x-3">
-              <img src="/images/envelope.svg" alt="Email" class="w-5 h-5 filter brightness-0 invert">
-              <span class="font-semibold">Email</span>
-            </div>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 opacity-70">
-              <path d="M15 3h6v6"></path>
-              <path d="M10 14 21 3"></path>
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Facebook Button Card -->
-    <div class="max-w-md mx-auto mb-8">
-      <div class="rounded-lg bg-white text-gray-800 group hover:scale-[1.02] transition-all duration-200 border-2 border-transparent hover:border-red-500/20 shadow-md hover:shadow-lg">
-        <div class="p-0">
-          <button class="flex items-center justify-between p-4 rounded-lg bg-blue-700 text-white hover:opacity-90 transition-opacity w-full">
-            <div class="flex items-center space-x-3">
-              <img src="/images/facebook.svg" alt="Facebook" class="w-5 h-5 filter brightness-0 invert">
-              <span class="font-semibold">Facebook</span>
-            </div>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 opacity-70">
-              <path d="M15 3h6v6"></path>
-              <path d="M10 14 21 3"></path>
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <!-- GitHub Button Card -->
-    <div class="max-w-md mx-auto mb-8">
-      <div class="rounded-lg bg-white text-gray-800 group hover:scale-[1.02] transition-all duration-200 border-2 border-transparent hover:border-red-500/20 shadow-md hover:shadow-lg">
-        <div class="p-0">
-          <button class="flex items-center justify-between p-4 rounded-lg bg-gray-800 text-white hover:opacity-90 transition-opacity w-full">
-            <div class="flex items-center space-x-3">
-              <img src="/images/github.svg" alt="GitHub" class="w-5 h-5 filter brightness-0 invert">
-              <span class="font-semibold">GitHub</span>
-            </div>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 opacity-70">
-              <path d="M15 3h6v6"></path>
-              <path d="M10 14 21 3"></path>
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Threads Button Card -->
-    <div class="max-w-md mx-auto mb-8">
-      <div class="rounded-lg bg-white text-gray-800 group hover:scale-[1.02] transition-all duration-200 border-2 border-transparent hover:border-red-500/20 shadow-md hover:shadow-lg">
-        <div class="p-0">
-          <button class="flex items-center justify-between p-4 rounded-lg bg-black text-white hover:opacity-90 transition-opacity w-full">
-            <div class="flex items-center space-x-3">
-              <img src="/images/threads.svg" alt="Threads" class="w-5 h-5 filter brightness-0 invert">
-              <span class="font-semibold">Threads</span>
-            </div>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 opacity-70">
-              <path d="M15 3h6v6"></path>
-              <path d="M10 14 21 3"></path>
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-    
-    <!-- Twitter Button Card -->
-    <div class="max-w-md mx-auto mb-8">
-      <div class="rounded-lg bg-white text-gray-800 group hover:scale-[1.02] transition-all duration-200 border-2 border-transparent hover:border-red-500/20 shadow-md hover:shadow-lg">
-        <div class="p-0">
-          <button class="flex items-center justify-between p-4 rounded-lg bg-black text-white hover:opacity-90 transition-opacity w-full">
-            <div class="flex items-center space-x-3">
-              <img src="/images/twitter-x.svg" alt="Twitter" class="w-5 h-5 filter brightness-0 invert">
-              <span class="font-semibold">Twitter</span>
-            </div>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 opacity-70">
-              <path d="M15 3h6v6"></path>
-              <path d="M10 14 21 3"></path>
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-            </svg>
-          </button>
-        </div>
-      </div>
-    </div>
   </div>
 </body>
 </html>
