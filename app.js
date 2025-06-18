@@ -9,8 +9,29 @@ app.set('view engine', 'ejs');
 // Serve static files
 app.use(express.static('public'));
 
+//Data parsing
 app.use(express.urlencoded({ extended: true }));
 
+//Database connection
+const { Pool } = require('pg');
+
+require('dotenv').config();
+
+const pool = new Pool({
+  user: process.env.PGUSER,
+  host: process.env.PGHOST,
+  database: process.env.PGDATABASE,
+  password: process.env.PGPASSWORD,
+  port: process.env.PGPORT,
+});
+
+pool.connect((err, client, release) => {
+  if (err) {
+    return console.error('Error acquiring client', err.stack);
+  }
+  console.log('Connected to the database');
+  release();
+});
 
 const links = [
   {
@@ -19,7 +40,8 @@ const links = [
     icon: "/images/instagram.svg",
     bgClass: "bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500",
     textColor: "text-white",
-    id: 0
+    id: 0,
+    value: "instagram"
   },
   {
     name: "LinkedIn",
@@ -27,7 +49,8 @@ const links = [
     icon: "/images/linkedin.svg",
     bgClass: "bg-blue-600",
     textColor: "text-white",
-    id: 1
+    id: 1,
+    value: "linkedin"
   },
   {
     name: "YouTube",
@@ -35,7 +58,8 @@ const links = [
     icon: "/images/youtube.svg",
     bgClass: "bg-red-600",
     textColor: "text-white",
-    id: 2
+    id: 2,
+    value: "youtube"
   },
   {
     name: "Snapchat",
@@ -43,7 +67,8 @@ const links = [
     icon: "/images/snapchat.svg",
     bgClass: "bg-yellow-400",
     textColor: "text-black",
-    id: 3
+    id: 3,
+    value: "snapchat"
   },
   {
     name: "Spotify",
@@ -51,7 +76,8 @@ const links = [
     icon: "/images/spotify.svg",
     bgClass: "bg-gradient-to-r from-green-500 to-black",
     textColor: "text-white",
-    id: 4
+    id: 4,
+    value: "spotify"
   },
   {
     name: "Apple Music",
@@ -59,7 +85,8 @@ const links = [
     icon: "/images/apple-music.svg",
     bgClass: "bg-pink-500",
     textColor: "text-white",
-    id: 5
+    id: 5,
+    value: "apple-music"
   },
   {
     name: "Website",
@@ -67,7 +94,8 @@ const links = [
     icon: "/images/browser-safari.svg",
     bgClass: "bg-blue-500",
     textColor: "text-white",
-    id: 6
+    id: 6,
+    value: "website"
   },
   {
     name: "Email",
@@ -75,7 +103,8 @@ const links = [
     icon: "/images/envelope.svg",
     bgClass: "bg-gray-600",
     textColor: "text-white",
-    id: 7
+    id: 7,
+    value: "email"
   },
   {
     name: "Facebook",
@@ -83,7 +112,8 @@ const links = [
     icon: "/images/facebook.svg",
     bgClass: "bg-blue-700",
     textColor: "text-white",
-    id: 8
+    id: 8,
+    value: "facebook"
   },
   {
     name: "GitHub",
@@ -91,7 +121,8 @@ const links = [
     icon: "/images/github.svg",
     bgClass: "bg-gray-800",
     textColor: "text-white",
-    id: 9
+    id: 9,
+    value: "github"
   },
   {
     name: "Threads",
@@ -99,7 +130,8 @@ const links = [
     icon: "/images/threads.svg",
     bgClass: "bg-black",
     textColor: "text-white",
-    id: 10
+    id: 10,
+    value: "threads"
   },
   {
     name: "Twitter",
@@ -107,7 +139,8 @@ const links = [
     icon: "/images/twitter-x.svg",
     bgClass: "bg-black",
     textColor: "text-white",
-    id: 11
+    id: 11,
+    value: "twitter"
   }
 ];
 
@@ -120,6 +153,12 @@ app.get('/', (req, res) => {
 app.post('/add-link', (req, res) => {
   const { platform, url } = req.body;
   console.log("New link:", platform, url);
+  //find id for link 
+  const found = links.find(link => link.value === platform);
+  console.log(found);
+  const id = found.id;
+  
+  // add link and id to database
   res.redirect('/');
 });
 
