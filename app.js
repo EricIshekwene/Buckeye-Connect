@@ -217,30 +217,44 @@ app.get('/', async (req, res) => {
   console.log("Database pool status:", pool.totalCount, "total connections");
 
   try {
+    // Fetch links
     const result = await pool.query("SELECT * FROM links");
-    console.log("Query executed successfully");
-    //show db rows
-    console.log("DB Rows:", result.rows); 
-    //show extracted type_ids
+
+    // Fetch user data
+    const userResult = await pool.query("SELECT * FROM users LIMIT 1");
+    const user = userResult.rows[0];
+    console.log("user:", user);
+
+    // Check if username and bio exist
+    if (!user || !user.username || !user.bio) {
+      console.log("Username or bio missing — skipping render");
+      return res.status(204).send(); // No Content or you could redirect
+    }
+
+    const username = user.username;
+    const bio = user.bio;
+    console.log("username:", username);
+    console.log("bio:", bio);
+
+    // Match with known platforms and return the links with the actual inputs
     const linkIds = result.rows.map(link => link.type_id);
-    console.log("Link IDs in DB:", linkIds); 
-  //show link formats
     const addedLinks = links.filter(link => linkIds.includes(link.id));
-    //replacing the links with the actual inputs
     addedLinks.forEach(link => {
       const dbLink = result.rows.find(row => row.type_id === link.id);
       if (dbLink) {
-        link.url = dbLink.url; 
+        link.url = dbLink.url;
       }
     });
-    console.log("Filtered Added Links:", addedLinks); 
 
-    res.render('index', { links, addedLinks });
+    console.log("Filtered Added Links:", addedLinks);
+    res.render('index', { links, addedLinks, username, bio });
+
   } catch (err) {
-    console.error('Error fetching links from database', err);
+    console.error('Error fetching from database', err);
     res.status(500).send("Database error");
   }
 });
+
 
 app.post('/add-link', async (req, res) => {
   try{const { platform, url } = req.body;
@@ -274,10 +288,7 @@ app.post('/add-link', async (req, res) => {
   
       console.log("Received:", name, bio);
   
-      await pool.query(
-        "INSERT INTO users (username, bio) VALUES ($1, $2)",
-        [name, bio]
-      );
+      await pool.query("UPDATE users SET username = $1, bio = $2 WHERE id = 4", [name, bio]);
   
       console.log("Profile inserted");
       res.redirect('/');

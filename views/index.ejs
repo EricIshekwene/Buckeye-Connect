@@ -16,10 +16,18 @@
       </div>
       
       <!-- Name -->
+       <% if (locals.username) { %>
+      <h2 class="text-xl font-bold text-gray-800 text-center mb-2"><%= username %></h2>
+      <% } else { %>
       <h2 class="text-xl font-bold text-gray-800 text-center mb-2">Enter a Name</h2>
+      <% } %>
       
       <!-- Bio -->
+      <% if (locals.bio) { %>
+      <p class="text-gray-600 text-center mb-4"><%= bio %> </p>
+      <% } else { %>
       <p class="text-gray-600 text-center mb-4">Enter a bio</p>
+      <% } %>
       
       <!-- Edit Profile Button -->
       <button id="openEditProfileModal" class="flex items-center justify-center mx-auto bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors">
