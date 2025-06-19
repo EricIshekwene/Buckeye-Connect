@@ -311,6 +311,10 @@ app.delete('/delete-link', async (req, res) => {
   }
 });
 
+app.get('/samplelogin', (req, res) => {
+  res.render('samplelogin');
+});
+
 // Start the server
 app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
 
