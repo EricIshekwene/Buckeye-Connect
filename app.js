@@ -225,6 +225,13 @@ app.get('/', async (req, res) => {
     console.log("Link IDs in DB:", linkIds); 
   //show link formats
     const addedLinks = links.filter(link => linkIds.includes(link.id));
+    //replacing the links with the actual inputs
+    addedLinks.forEach(link => {
+      const dbLink = result.rows.find(row => row.type_id === link.id);
+      if (dbLink) {
+        link.url = dbLink.url; 
+      }
+    });
     console.log("Filtered Added Links:", addedLinks); 
 
     res.render('index', { links, addedLinks });
