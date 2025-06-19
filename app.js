@@ -266,6 +266,26 @@ app.post('/add-link', async (req, res) => {
   res.status(500).send("couldnt hit post");
 }    
   });
+
+  app.post('/edit-profile', async (req, res) => {
+    try {
+      console.log("edit profile route accessed");
+      const { name, bio } = req.body;
+  
+      console.log("Received:", name, bio);
+  
+      await pool.query(
+        "INSERT INTO users (username, bio) VALUES ($1, $2)",
+        [name, bio]
+      );
+  
+      console.log("Profile inserted");
+      res.redirect('/');
+    } catch (error) {
+      console.error('Error editing profile', error);
+      res.status(500).send("Error editing profile");
+    }
+  });
   
 app.delete('/delete-link', async (req, res) => {
   console.log("delete link route accessed");

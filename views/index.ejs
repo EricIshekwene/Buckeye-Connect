@@ -16,19 +16,39 @@
       </div>
       
       <!-- Name -->
-      <h2 class="text-xl font-bold text-gray-800 text-center mb-2">Eric Ishekwene</h2>
+      <h2 class="text-xl font-bold text-gray-800 text-center mb-2">Enter a Name</h2>
       
       <!-- Bio -->
-      <p class="text-gray-600 text-center mb-4">OSU Student | Engineering Major | Go Bucks! 🌰</p>
+      <p class="text-gray-600 text-center mb-4">Enter a bio</p>
       
       <!-- Edit Profile Button -->
-      <button class="flex items-center justify-center mx-auto bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors">
+      <button id="openEditProfileModal" class="flex items-center justify-center mx-auto bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors">
         <img src="/images/link-solid.svg" alt="Edit" class="h-4 w-4 mr-2 filter brightness-0 invert">
         Edit Profile
       </button>
     </div>
     
-    
+    <!-- Edit Profile Modal -->
+    <div id="editProfileModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40 hidden">
+      <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-md relative">
+        <button id="closeEditProfileModal" class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl font-bold">&times;</button>
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Edit Profile</h2>
+        <form id="editProfileForm">
+          <div class="mb-4">
+            <label for="editName" class="block text-sm font-medium text-gray-700 mb-2">Name</label>
+            <input type="text" id="editName" name="editName" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="Enter your name">
+          </div>
+          <div class="mb-6">
+            <label for="editBio" class="block text-sm font-medium text-gray-700 mb-2">Bio</label>
+            <textarea id="editBio" name="editBio" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500" placeholder="Enter your bio"></textarea>
+          </div>
+          <div class="flex space-x-3">
+            <button type="button" id="cancelEditProfile" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 font-semibold py-3 px-4 rounded-lg transition-colors">Cancel</button>
+            <button type="submit" id='submitEditProfile' class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
     
     <!-- User Added Links (from database) -->
     <% if (locals.addedLinks && addedLinks.length > 0){ addedLinks.forEach(link => { %>
@@ -133,9 +153,12 @@
   const toggleBtn = document.getElementById("toggleAddLinkForm");
   const form = document.getElementById("addLinkForm");
   const cancelBtn = document.getElementById("cancelAddLinkForm");
+  const submitEditProfile = document.getElementById("submitEditProfile");
   
   const deleteLinks = document.querySelectorAll(".deleteLink");
-deleteLinks.forEach(btn => {
+  
+  
+  deleteLinks.forEach(btn => {
   btn.addEventListener("click", async () => {
     const id = btn.value;
     const response = await fetch('/delete-link', {
@@ -153,6 +176,25 @@ deleteLinks.forEach(btn => {
     }
   });
 });
+
+  submitEditProfile.addEventListener("click", async () => {
+    const name = document.getElementById("editName").value;
+    const bio = document.getElementById("editBio").value;
+    const response = await fetch('/edit-profile', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ name, bio })
+    });
+    if (response.ok) {  
+      console.log("profile edited");
+      location.reload();
+    } else {
+      alert('Failed to edit profile');
+    }
+  });
+
   toggleBtn.addEventListener("click", () => {
     form.classList.toggle("hidden");
     console.log("clicked");
@@ -163,6 +205,21 @@ deleteLinks.forEach(btn => {
     console.log("clicked");
   });
   
+  const openEditProfileModal = document.getElementById("openEditProfileModal");
+  const editProfileModal = document.getElementById("editProfileModal");
+  const closeEditProfileModal = document.getElementById("closeEditProfileModal");
+  const cancelEditProfile = document.getElementById("cancelEditProfile");
+
+  openEditProfileModal.addEventListener("click", () => {
+    editProfileModal.classList.remove("hidden");
+  });
+  closeEditProfileModal.addEventListener("click", () => {
+    editProfileModal.classList.add("hidden");
+  });
+  cancelEditProfile.addEventListener("click", (e) => {
+    e.preventDefault();
+    editProfileModal.classList.add("hidden");
+  });
 </script>
 <style>
   /* Custom group hover for enlarging the trash button and icon */
