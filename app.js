@@ -11,6 +11,7 @@ app.use(express.static('public'));
 
 //Data parsing
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 
 //Database connection
 const { Pool } = require('pg');
@@ -266,7 +267,18 @@ app.post('/add-link', async (req, res) => {
 }    
   });
   
-
+app.delete('/delete-link', async (req, res) => {
+  console.log("delete link route accessed");
+  try {
+    const { id } = req.body;
+    await pool.query("DELETE FROM links WHERE type_id = $1", [id]);
+    res.status(200).send("Deleted");
+    console.log(`link deleted of id ${id}`);
+  } catch (error) {
+    console.error('Error deleting link', error);
+    res.status(500).send("Error deleting link");
+  }
+});
 
 // Start the server
 app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));

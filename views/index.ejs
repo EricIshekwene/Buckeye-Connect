@@ -32,8 +32,8 @@
     
     <!-- User Added Links (from database) -->
     <% if (locals.addedLinks && addedLinks.length > 0){ addedLinks.forEach(link => { %>
-      <div class="max-w-md mx-auto mb-8">
-        <div class="rounded-lg bg-white text-gray-800 group hover:scale-[1.02] transition-all duration-200 border-2 border-transparent hover:border-red-500/20 shadow-md hover:shadow-lg">
+      <div class="max-w-md mx-auto mb-8 flex items-center">
+        <div class="rounded-lg bg-white text-gray-800 group hover:scale-[1.02] transition-all duration-200 border-2 border-transparent hover:border-red-500/20 shadow-md hover:shadow-lg flex-1">
           <div class="p-0">
             <a href="<%= link.url %>" target="_blank">
               <button class="flex items-center justify-between p-4 rounded-lg <%= link.bgClass %> <%= link.textColor %> hover:opacity-90 transition-opacity w-full">
@@ -50,6 +50,11 @@
             </a>
           </div>
         </div>
+        <button  value="<%= link.id %>" class="deleteLink ml-2 p-2 rounded-full bg-red-500/10 hover:bg-red-500/30 transition-all duration-200 flex-shrink-0 group-trash-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" class="w-5 h-5 text-red-600 transition-all duration-200 group-trash-svg">
+            <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
+          </svg>
+        </button>
       </div>
     <% }); } %>
     
@@ -128,7 +133,26 @@
   const toggleBtn = document.getElementById("toggleAddLinkForm");
   const form = document.getElementById("addLinkForm");
   const cancelBtn = document.getElementById("cancelAddLinkForm");
-
+  
+  const deleteLinks = document.querySelectorAll(".deleteLink");
+deleteLinks.forEach(btn => {
+  btn.addEventListener("click", async () => {
+    const id = btn.value;
+    const response = await fetch('/delete-link', {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ id })
+    });
+    if (response.ok) {
+      console.log("link deleted");
+      location.reload();
+    } else {
+      alert('Failed to delete link');
+    }
+  });
+});
   toggleBtn.addEventListener("click", () => {
     form.classList.toggle("hidden");
     console.log("clicked");
@@ -138,5 +162,16 @@
     form.classList.toggle("hidden");
     console.log("clicked");
   });
+  
 </script>
+<style>
+  /* Custom group hover for enlarging the trash button and icon */
+  .group-trash-btn:hover {
+    transform: scale(1.2);
+  }
+  .group-trash-btn:hover .group-trash-svg {
+    color: #b91c1c; /* Tailwind red-700 */
+    transform: scale(1.25);
+  }
+</style>
 </html>
