@@ -2,6 +2,7 @@
 const express = require('express');
 const app = express();
 const PORT = 3000;
+const bcrypt = require('bcrypt');
 
 // Set EJS as the template engine
 app.set('view engine', 'ejs');
@@ -209,10 +210,20 @@ const links = [
 ];
 
 
+app.get('/', (req, res) => {
+  res.render('samplelogin');
+});
 
+app.get('/signup', (req, res) => {
+  res.render('samplesignup');
+});
+
+app.get('/forgot-password', (req, res) => {
+  res.render('sampleforgotpassword');
+});
 
 // Home route
-app.get('/', async (req, res) => {
+app.get('/links', async (req, res) => {
   console.log("GET route accessed");
   console.log("Database pool status:", pool.totalCount, "total connections");
 
@@ -311,14 +322,57 @@ app.delete('/delete-link', async (req, res) => {
   }
 });
 
-app.get('/samplelogin', (req, res) => {
-  res.render('samplelogin');
+app.post('/login', async (req, res) => {
+  console.log("login route accessed");
+  const { email, password } = req.body;
+  console.log(email, password);
+  try{
+    //find username
+      const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+      const user = result.rows[0];
+      
+      if (!user) return res.status(401).json({ message: "Invalid credentials" });
+      //check if password is correct versus hashing
+      
+      const match = await bcrypt.compare(password, user.password);
+
+      if (match) {
+        return res.status(200).json({ message: "Login successful" }); 
+      } else {
+        return res.status(401).json({ message: "Invalid credentials" });
+      }
+  }catch(error){
+    console.error('Error logging in', error);
+    res.status(500).send("Error logging in");
+  }
+  
+
 });
-app.get('/samplesignup', (req, res) => {
-  res.render('samplesignup');
-});
-app.get('/sampleforgotpassword', (req, res) => {
-  res.render('sampleforgotpassword');
+
+app.post('/signup', async (req, res) => {
+  console.log("signup route accessed");
+  const { email, password, name } = req.body;
+  console.log(email, password, name);
+  try{
+    //check if email already exists
+    const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+    if (result.rows.length > 0) {
+      console.log("email already exists");
+      return res.status(400).json({ message: "Email already exists" });
+    }
+
+    
+
+    //hash password
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    //insert user into database
+    await pool.query("INSERT INTO users (email, password, full_name, username, bio) VALUES ($1, $2, $3, $4, $5)", [email, hashedPassword, name, name, "Enter a Bio:"]);
+    res.status(200).send({ message: "Account created successfully" });
+  }catch(error){
+    console.error('Error signing up', error);
+    res.status(500).send({ message: "Error signing up" });
+  }
 });
 
 // Start the server
