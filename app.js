@@ -315,7 +315,7 @@ app.get('/links', ensureAuthenticated, async (req, res) => {
         dbId: dbLink.id, 
         id: dbLink.type_id,
         url: dbLink.url,
-        name: dbLink.name,
+        name: dbLink.user_link_name || dbLink.name,
         icon: platformMeta?.icon || '',
         bgClass: platformMeta?.bgClass || '',
         textColor: platformMeta?.textColor || '',
@@ -335,7 +335,7 @@ app.get('/links', ensureAuthenticated, async (req, res) => {
 
 
 app.post('/add-link', ensureAuthenticated, async (req, res) => {
-  try{const { platform, url } = req.body;
+  try{const { platform, url, linkName } = req.body;
   console.log("New link:", platform, url);
   //find id for link 
   const found = links.find(link => link.value === platform);
@@ -345,7 +345,7 @@ app.post('/add-link', ensureAuthenticated, async (req, res) => {
   // add link and id to database
         try{
           await pool.query(
-            "INSERT INTO links (type_id, url, name, user_id) VALUES ($1, $2, $3, $4)",  [id, url, name, req.user.id ]
+            "INSERT INTO links (type_id, url, name, user_id, user_link_name) VALUES ($1, $2, $3, $4, $5)",  [id, url, name, req.user.id, linkName || name]
           );
           console.log("Link added to database");
           res.redirect('/links');
