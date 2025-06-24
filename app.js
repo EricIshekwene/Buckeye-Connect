@@ -299,6 +299,47 @@ app.get('/', (req, res) => {
     res.render('samplelogin');}
 });
 
+app.get('/u/:username', async (req, res) => {
+  const username = req.params.username;
+
+  try {
+    // Get user info
+    const userResult = await pool.query("SELECT * FROM users WHERE username = $1", [username]);
+    if (userResult.rows.length === 0) {
+      return res.status(404).send("User not found");
+    }
+
+    const user = userResult.rows[0];
+
+    // Get that user's links
+    const linksResult = await pool.query("SELECT * FROM links WHERE user_id = $1 ORDER BY id ASC", [user.id]);
+
+    // Map links with metadata
+    const addedLinks = linksResult.rows.map(link => {
+      const platform = links.find(p => p.id === link.type_id);
+      return {
+        id: link.type_id,
+        name: link.user_link_name || link.name,
+        url: link.url,
+        icon: platform?.icon || '',
+        bgClass: platform?.bgClass || '',
+        textColor: platform?.textColor || ''
+      };
+    });
+
+    // Render your public-page view
+    res.render('publicpages', {
+      username: user.username,
+      bio: user.bio,
+      imageUrl: user.profile_image,
+      addedLinks
+    });
+
+  } catch (error) {
+    console.error("Public page error", error);
+    res.status(500).send("Server error");
+  }
+});
 
 
 
@@ -424,8 +465,8 @@ app.delete('/delete-link', async (req, res) => {
 
 app.post('/signup', async (req, res) => {
   console.log("signup route accessed");
-  const { email, password, name } = req.body;
-  console.log(email, password, name);
+  const { email, password, name, username } = req.body;
+  console.log(email, password, name, username);
   try{
     //check if email already exists
     const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);

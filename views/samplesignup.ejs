@@ -35,13 +35,22 @@
               class="flex w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-base placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all" />
           </div>
           <div class="space-y-2">
+            <label for="username" class="text-sm font-medium text-gray-700">Username</label>
+            <input  pattern="^[a-zA-Z0-9_]{3,15}$"
+            title="Username must be 3-15 characters, no spaces, only letters, numbers, and underscores"
+            required type="text" id="username" name="username" placeholder="Enter your username"
+              class="flex w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-base placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all" />
+          </div>
+          <div class="space-y-2">
             <label for="email" class="text-sm font-medium text-gray-700">Email</label>
             <input type="email" id="email" name="email" required placeholder="your.email@osu.edu"
               class="flex w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-base placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all" />
           </div>
           <div class="space-y-2">
             <label for="password" class="text-sm font-medium text-gray-700">Password</label>
-            <input type="password" id="password" name="password" required placeholder="Create a password"
+            <input pattern=".{6,}"
+            title="Password must be at least 6 characters long."
+             type="password" id="password" name="password" required placeholder="Create a password"
               class="flex w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-base placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all" />
           </div>
           <div class="space-y-2">
@@ -80,7 +89,7 @@
 </body>
 <script>
 
-  const signupForm = document.querySelector("form");
+const signupForm = document.querySelector("form");
 const alertDiv = document.getElementById("alertDiv");
 
 signupForm.addEventListener("submit", async (e) => {

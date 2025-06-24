@@ -36,11 +36,22 @@
       <p class="text-gray-600 text-center mb-4">Enter a bio</p>
       <% } %>
       
-      <!-- Edit Profile Button -->
-      <button id="openEditProfileModal" class="flex items-center justify-center mx-auto bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors">
-        <img src="/images/link-solid.svg" alt="Edit" class="h-4 w-4 mr-2 filter brightness-0 invert">
-        Edit Profile
-      </button>
+      <!-- Edit Profile Button and Share Button -->
+      <div class="flex items-center justify-center space-x-2 mt-2">
+        <button id="openEditProfileModal" class="flex items-center bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors">
+          <img src="/images/link-solid.svg" alt="Edit" class="h-4 w-4 mr-2 filter brightness-0 invert">
+          Edit Profile
+        </button>
+        <button id="shareProfileBtn" class="flex items-center bg-gray-200 hover:bg-gray-300 text-red-600 px-4 py-2 rounded-lg transition-colors">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <circle cx="18" cy="5" r="3" fill="currentColor"/>
+            <circle cx="6" cy="12" r="3" fill="currentColor"/>
+            <circle cx="18" cy="19" r="3" fill="currentColor"/>
+            <path d="M8.59 13.51l6.83 3.98M15.41 6.51l-6.83 3.98" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+        <span id="shareCopiedMsg" class="ml-2 text-green-600 font-semibold hidden">Link Copied!</span>
+      </div>
     </div>
     
     <!-- Edit Profile Modal -->
@@ -298,6 +309,21 @@ submitEditProfile.addEventListener("click", async (e) => {
     reader.readAsDataURL(file);
   }
 });
+
+  // Share button logic
+  const shareProfileBtn = document.getElementById('shareProfileBtn');
+  const shareCopiedMsg = document.getElementById('shareCopiedMsg');
+  if (shareProfileBtn) {
+    shareProfileBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(window.location.href);
+        shareCopiedMsg.classList.remove('hidden');
+        setTimeout(() => shareCopiedMsg.classList.add('hidden'), 1500);
+      } catch (e) {
+        alert('Failed to copy link');
+      }
+    });
+  }
 
 </script>
 <style>
