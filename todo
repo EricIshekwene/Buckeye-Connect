@@ -1,23 +1,4 @@
-
-
-
-add background
-background selector
-
-
-effective logs
-
-
 link order
-max 3 links per website
-
-
-login
-sign up/ sign in/ forgot passwords get request
-passwords matching
-load account to db
-change create account form to just first name
-create default linkpage
-create connected dbs for data
-
-change edit to patch request
+login with google
+sharable page set 
+forgot password logic

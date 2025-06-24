@@ -294,7 +294,8 @@ app.get('/links', ensureAuthenticated, async (req, res) => {
   
   try {
     // Fetch links
-    const result = await pool.query("SELECT * FROM links WHERE user_id = $1", [req.user.id]);
+    const result = await pool.query("SELECT * FROM links WHERE user_id = $1 ORDER BY id ASC", [req.user.id]);
+    console.log("result:", result.rows);
 
     // Fetch user data for bio and username
     const userResult = await pool.query("SELECT * FROM users WHERE id = $1", [req.user.id]);
@@ -307,13 +308,21 @@ app.get('/links', ensureAuthenticated, async (req, res) => {
 
     // Match with known platforms and return the links with the actual inputs
     const linkIds = result.rows.map(link => link.type_id);
-    const addedLinks = links.filter(link => linkIds.includes(link.id));
-    addedLinks.forEach(link => {
-      const dbLink = result.rows.find(row => row.type_id === link.id);
-      if (dbLink) {
-        link.url = dbLink.url;
-      }
+
+    const addedLinks = result.rows.map(dbLink => {
+      const platformMeta = links.find(link => link.id === dbLink.type_id);
+      return {
+        dbId: dbLink.id, 
+        id: dbLink.type_id,
+        url: dbLink.url,
+        name: dbLink.name,
+        icon: platformMeta?.icon || '',
+        bgClass: platformMeta?.bgClass || '',
+        textColor: platformMeta?.textColor || '',
+      };
     });
+    
+
 
     console.log("Filtered Added Links:", addedLinks);
     res.render('index', { links, addedLinks, username, bio });
@@ -370,10 +379,9 @@ app.post('/add-link', ensureAuthenticated, async (req, res) => {
 app.delete('/delete-link', async (req, res) => {
   console.log("delete link route accessed");
   try {
-    const { id } = req.body;
-    await pool.query("DELETE FROM links WHERE type_id = $1 AND user_id = $2", [id, req.user.id]);
+    await pool.query("DELETE FROM links WHERE id = $1 AND user_id = $2", [req.body.id, req.user.id]);
     res.status(200).send("Deleted");
-    console.log(`link deleted of id ${id}`);
+    console.log(`link deleted of id ${req.body.id}`);
   } catch (error) {
     console.error('Error deleting link', error);
     res.status(500).send("Error deleting link");

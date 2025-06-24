@@ -78,7 +78,7 @@
             </a>
           </div>
         </div>
-        <button  value="<%= link.id %>" class="deleteLink ml-2 p-2 rounded-full bg-red-500/10 hover:bg-red-500/30 transition-all duration-200 flex-shrink-0 group-trash-btn">
+        <button  value="<%= link.dbId %>" class="deleteLink ml-2 p-2 rounded-full bg-red-500/10 hover:bg-red-500/30 transition-all duration-200 flex-shrink-0 group-trash-btn">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16" class="w-5 h-5 text-red-600 transition-all duration-200 group-trash-svg">
             <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5M8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5m3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0"/>
           </svg>
@@ -174,7 +174,7 @@
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ id })
+      body: JSON.stringify({  id })
     });
     if (response.ok) {
       console.log("link deleted");
