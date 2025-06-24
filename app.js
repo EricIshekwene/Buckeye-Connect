@@ -3,6 +3,10 @@ const express = require('express');
 const app = express();
 const PORT = 3000;
 const bcrypt = require('bcrypt');
+const session = require('express-session');
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+
 
 // Set EJS as the template engine
 app.set('view engine', 'ejs');
@@ -209,6 +213,64 @@ const links = [
   }
 ];
 
+app.use(session({
+  secret: process.env.SESSION_SECRET, 
+  resave: false,
+  saveUninitialized: false,
+  cookie: { maxAge: 30 * 24 * 60 * 60 * 1000 }
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+
+app.post('/login', (req, res, next) => {
+  console.log("login route accessed");
+  const { email, password } = req.body;
+  
+  passport.authenticate('local', (err, user, info) => {
+    if (err) return next(err); 
+    if (!user) return res.status(401).json({ message: info.message }); 
+    req.logIn(user, (err) => {
+      if (err) return next(err); 
+      return res.status(200).json({ message: "Login successful" });
+    });
+  })(req, res, next);
+
+});
+//login passport
+passport.use(new LocalStrategy({ usernameField: 'email' },async (email, password, done) => {
+  try{
+    //find username
+      const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+      const user = result.rows[0];
+      
+      if (!user) return done(null, false, { message: "User not found" });
+      //check if password is correct versus hashing
+      
+      const match = await bcrypt.compare(password, user.password);
+
+      if (match) {
+        return done(null, user); 
+      } else {
+        return done(null, false, { message: "Invalid credentials" });
+      }
+  }catch(error){
+    console.error('Error logging in', error);
+    return done(error);
+  }
+}));
+//serialize user
+passport.serializeUser((user, done) => done(null, user.id));
+//login passport request returning user
+passport.deserializeUser(async (id, done) => {
+  try {
+    const result = await pool.query("SELECT * FROM users WHERE id = $1", [id]);
+    done(null, result.rows[0]);
+  } catch (err) {
+    done(err);
+  }
+});
 
 app.get('/', (req, res) => {
   res.render('samplelogin');
@@ -221,27 +283,23 @@ app.get('/signup', (req, res) => {
 app.get('/forgot-password', (req, res) => {
   res.render('sampleforgotpassword');
 });
-
+function ensureAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) return next();
+  res.redirect('/');
+}
 // Home route
-app.get('/links', async (req, res) => {
+app.get('/links', ensureAuthenticated, async (req, res) => {
   console.log("GET route accessed");
   console.log("Database pool status:", pool.totalCount, "total connections");
-
+  
   try {
     // Fetch links
-    const result = await pool.query("SELECT * FROM links");
+    const result = await pool.query("SELECT * FROM links WHERE user_id = $1", [req.user.id]);
 
-    // Fetch user data
-    const userResult = await pool.query("SELECT * FROM users LIMIT 1");
+    // Fetch user data for bio and username
+    const userResult = await pool.query("SELECT * FROM users WHERE id = $1", [req.user.id]);
     const user = userResult.rows[0];
     console.log("user:", user);
-
-    // Check if username and bio exist
-    if (!user || !user.username || !user.bio) {
-      console.log("Username or bio missing — skipping render");
-      return res.status(204).send(); // No Content or you could redirect
-    }
-
     const username = user.username;
     const bio = user.bio;
     console.log("username:", username);
@@ -267,7 +325,7 @@ app.get('/links', async (req, res) => {
 });
 
 
-app.post('/add-link', async (req, res) => {
+app.post('/add-link', ensureAuthenticated, async (req, res) => {
   try{const { platform, url } = req.body;
   console.log("New link:", platform, url);
   //find id for link 
@@ -276,33 +334,33 @@ app.post('/add-link', async (req, res) => {
   const id = found.id;
   const name = found.name;
   // add link and id to database
-  try{
-    await pool.query(
-      "INSERT INTO links (type_id, url, name) VALUES ($1, $2, $3)",  [id, url, name]
-    );
-    console.log("Link added to database");
-    res.redirect('/');
-  }catch(error){
-    console.error('Error adding link to database', error);
-    res.status(500).send("Something went wrong");
-  }
-}catch(error){
-  console.error('couldnt hit post', error);
-  res.status(500).send("couldnt hit post");
-}    
+        try{
+          await pool.query(
+            "INSERT INTO links (type_id, url, name, user_id) VALUES ($1, $2, $3, $4)",  [id, url, name, req.user.id ]
+          );
+          console.log("Link added to database");
+          res.redirect('/links');
+        }catch(error){
+          console.error('Error adding link to database', error);
+          res.status(500).send("Something went wrong");
+        }
+      }catch(error){
+        console.error('couldnt hit post', error);
+        res.status(500).send("couldnt hit post");
+      }    
   });
 
-  app.post('/edit-profile', async (req, res) => {
+  app.post('/edit-profile', ensureAuthenticated, async (req, res) => {
     try {
       console.log("edit profile route accessed");
       const { name, bio } = req.body;
   
       console.log("Received:", name, bio);
   
-      await pool.query("UPDATE users SET username = $1, bio = $2 WHERE id = 4", [name, bio]);
+      await pool.query("UPDATE users SET username = $1, bio = $2 WHERE id = $3 ", [name, bio, req.user.id]);
   
       console.log("Profile inserted");
-      res.redirect('/');
+      res.redirect('/links');
     } catch (error) {
       console.error('Error editing profile', error);
       res.status(500).send("Error editing profile");
@@ -313,7 +371,7 @@ app.delete('/delete-link', async (req, res) => {
   console.log("delete link route accessed");
   try {
     const { id } = req.body;
-    await pool.query("DELETE FROM links WHERE type_id = $1", [id]);
+    await pool.query("DELETE FROM links WHERE type_id = $1 AND user_id = $2", [id, req.user.id]);
     res.status(200).send("Deleted");
     console.log(`link deleted of id ${id}`);
   } catch (error) {
@@ -322,32 +380,7 @@ app.delete('/delete-link', async (req, res) => {
   }
 });
 
-app.post('/login', async (req, res) => {
-  console.log("login route accessed");
-  const { email, password } = req.body;
-  console.log(email, password);
-  try{
-    //find username
-      const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
-      const user = result.rows[0];
-      
-      if (!user) return res.status(401).json({ message: "Invalid credentials" });
-      //check if password is correct versus hashing
-      
-      const match = await bcrypt.compare(password, user.password);
 
-      if (match) {
-        return res.status(200).json({ message: "Login successful" }); 
-      } else {
-        return res.status(401).json({ message: "Invalid credentials" });
-      }
-  }catch(error){
-    console.error('Error logging in', error);
-    res.status(500).send("Error logging in");
-  }
-  
-
-});
 
 app.post('/signup', async (req, res) => {
   console.log("signup route accessed");
