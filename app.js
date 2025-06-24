@@ -1,4 +1,5 @@
 // app.js
+require('dotenv').config();
 const express = require('express');
 const app = express();
 const PORT = 3000;
@@ -6,7 +7,27 @@ const bcrypt = require('bcrypt');
 const session = require('express-session');
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
+const cloudinary = require('cloudinary').v2;
+const multer = require('multer');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const streamifier = require('streamifier');
 
+
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
+
+const storage = new CloudinaryStorage({
+  cloudinary,
+  params: {
+    folder: 'buckeye-profile-pics',
+    allowed_formats: ['jpeg', 'png', 'jpg'],
+  },
+});
+
+const upload = multer({ storage });
 
 // Set EJS as the template engine
 app.set('view engine', 'ejs');
@@ -21,7 +42,7 @@ app.use(express.json());
 //Database connection
 const { Pool } = require('pg');
 
-require('dotenv').config();
+
 
 const pool = new Pool({
   user: process.env.PGUSER,
@@ -273,8 +294,13 @@ passport.deserializeUser(async (id, done) => {
 });
 
 app.get('/', (req, res) => {
-  res.render('samplelogin');
+  if (req.isAuthenticated()) {
+    res.redirect('/links');}else{
+    res.render('samplelogin');}
 });
+
+
+
 
 app.get('/signup', (req, res) => {
   res.render('samplesignup');
@@ -296,7 +322,10 @@ app.get('/links', ensureAuthenticated, async (req, res) => {
     // Fetch links
     const result = await pool.query("SELECT * FROM links WHERE user_id = $1 ORDER BY id ASC", [req.user.id]);
     console.log("result:", result.rows);
-
+    //fetch image
+    const imageResult = await pool.query("SELECT profile_image FROM users WHERE id = $1", [req.user.id]);
+    const imageUrl = imageResult.rows[0].profile_image;
+    console.log("imageUrl:", imageUrl);
     // Fetch user data for bio and username
     const userResult = await pool.query("SELECT * FROM users WHERE id = $1", [req.user.id]);
     const user = userResult.rows[0];
@@ -325,7 +354,7 @@ app.get('/links', ensureAuthenticated, async (req, res) => {
 
 
     console.log("Filtered Added Links:", addedLinks);
-    res.render('index', { links, addedLinks, username, bio });
+    res.render('index', { links, addedLinks, username, bio, imageUrl });
 
   } catch (err) {
     console.error('Error fetching from database', err);
@@ -359,22 +388,25 @@ app.post('/add-link', ensureAuthenticated, async (req, res) => {
       }    
   });
 
-  app.post('/edit-profile', ensureAuthenticated, async (req, res) => {
+  app.post('/edit-profile', ensureAuthenticated, upload.single('editPhoto'), async (req, res) => {
     try {
-      console.log("edit profile route accessed");
-      const { name, bio } = req.body;
+      const userId = req.user.id;
+      const name = req.body.editName;
+      const bio = req.body.editBio;
+      const imageUrl = req.file ? req.file.path : null;
   
-      console.log("Received:", name, bio);
+      await pool.query(
+        `UPDATE users SET username = $1, bio = $2${imageUrl ? ', profile_image = $3' : ''} WHERE id = $${imageUrl ? 4 : 3}`,
+        imageUrl ? [name, bio, imageUrl, userId] : [name, bio, userId]
+      );
   
-      await pool.query("UPDATE users SET username = $1, bio = $2 WHERE id = $3 ", [name, bio, req.user.id]);
-  
-      console.log("Profile inserted");
-      res.redirect('/links');
-    } catch (error) {
-      console.error('Error editing profile', error);
-      res.status(500).send("Error editing profile");
+      res.status(200).json({ message: "Profile updated" });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Server error" });
     }
   });
+  
   
 app.delete('/delete-link', async (req, res) => {
   console.log("delete link route accessed");
