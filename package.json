@@ -1,9 +1,10 @@
 {
   "name": "buckeye-connect",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "dev": "nodemon app.js",
+    "start": "node app.js",
     "start:bs": "browser-sync start --proxy 'localhost:3000' --files 'views/*.ejs, public/*.css'",
     "build:css": "tailwindcss -i ./public/tailwind.css -o ./public/style.css --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
