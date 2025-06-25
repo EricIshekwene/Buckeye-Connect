@@ -86,7 +86,7 @@
     const data = await res.json(); 
     if (res.ok) {
       console.log("login successful");
-      location.href = '/links';
+      window.location.href = '/';
     } else {
       alertDiv.classList.remove("hidden");
     alertDiv.innerHTML = `<span class="block sm:inline">${data.message || "Login failed"}</span>`;

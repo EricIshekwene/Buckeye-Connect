@@ -481,7 +481,7 @@ app.post('/signup', async (req, res) => {
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     //insert user into database
-    await pool.query("INSERT INTO users (email, password, full_name, username, bio) VALUES ($1, $2, $3, $4, $5)", [email, hashedPassword, name, name, "Enter a Bio:"]);
+    await pool.query("INSERT INTO users (email, password, full_name, username, bio) VALUES ($1, $2, $3, $4, $5)", [email, hashedPassword, name, username, "Enter a Bio:"]);
     res.status(200).send({ message: "Account created successfully" });
   }catch(error){
     console.error('Error signing up', error);

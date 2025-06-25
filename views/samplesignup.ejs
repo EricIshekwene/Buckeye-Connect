@@ -98,11 +98,11 @@ signupForm.addEventListener("submit", async (e) => {
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
   const name = document.getElementById("name").value;
-
+  const username = document.getElementById("username").value;
   const res = await fetch("/signup", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password, name })
+    body: JSON.stringify({ email, password, name, username })
   });
 
   const data = await res.json(); 
