@@ -603,7 +603,7 @@ app.post('/reset-password', async (req, res) => {
 
 });
 // Start the server
-app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
+app.listen(PORT,  () => console.log(`Server running at http://localhost:${PORT}`));
 app.use((req, res, next) => {
   res.status(404).render('404');
 });

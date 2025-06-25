@@ -74,19 +74,21 @@
 <script>
   const loginBtn = document.getElementById("loginBtn");
   const alertDiv = document.getElementById("alertDive");
-  loginBtn.addEventListener("click", async () => {
+  loginBtn.addEventListener("click", async (e) => {
+    e.preventDefault(e);
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
 
     const res = await fetch("/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password })
+      body: JSON.stringify({ email, password }),
+      credentials: "same-origin"
     });
     const data = await res.json(); 
     if (res.ok) {
       console.log("login successful");
-      window.location.href = '/';
+      window.location.href = '/links';
     } else {
       alertDiv.classList.remove("hidden");
     alertDiv.innerHTML = `<span class="block sm:inline">${data.message || "Login failed"}</span>`;
