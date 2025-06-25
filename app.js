@@ -11,7 +11,7 @@ const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const streamifier = require('streamifier');
-
+const nodemailer = require('nodemailer');
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -464,6 +464,9 @@ app.delete('/delete-link', async (req, res) => {
 
 
 
+
+
+
 app.post('/signup', async (req, res) => {
   console.log("signup route accessed");
   const { email, password, name, username } = req.body;
@@ -490,6 +493,115 @@ app.post('/signup', async (req, res) => {
   }
 });
 
+async function sendResetCode(email, code) {
+  let transporter = nodemailer.createTransport({
+    service: 'Gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS
+    }
+  });
+
+  await transporter.sendMail({
+    from: '"Buckeye Connect" <buckeyeconnect@gmail.com>',
+    to: email,
+    subject: 'Your Buckeye Connect Password Reset Code',
+    text: `Your reset code is: ${code}. It will expire in 10 minutes.`
+  });
+}
+
+app.post('/send-reset-code', async (req, res) => {
+  console.log("send reset code route accessed");
+  const { email } = req.body;
+
+  try {
+    const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
+    if (result.rows.length === 0) {
+      return res.status(400).json({ message: "Email not found" });
+    }
+
+    const user = result.rows[0];
+    const resetCode = Math.floor(100000 + Math.random() * 900000);  
+    const resetCodeExpires = Date.now() + 10 * 60 * 1000;  
+
+    await pool.query(
+      "UPDATE users SET reset_code = $1, reset_token_expires = $2 WHERE id = $3",
+      [resetCode, resetCodeExpires, user.id]
+    );
+
+    await sendResetCode(email, resetCode);
+
+    res.status(200).json({ message: "Reset code sent" });
+
+  } catch (error) {
+    console.error('Error sending reset code', error);
+    res.status(500).json({ message: "Error sending reset code" });
+  }
+});
+
+app.get('/reset-password', (req, res) => {
+  res.render('resetpassword');
+});
+app.post('/verify-reset-code', async (req, res) => {
+  const { code } = req.body;
+  console.log("Verifying code:", code);
+
+  try {
+    // Convert code to string for comparison
+    const codeString = code.toString();
+    console.log("Code as string:", codeString);
+    
+    const result = await pool.query("SELECT * FROM users WHERE reset_code = $1", [codeString]);
+    console.log("Database result:", result.rows);
+    
+    if (result.rows.length === 0) {
+      console.log("No user found with this code");
+      return res.status(400).json({ message: "Invalid code" });
+    }
+    
+    const user = result.rows[0];
+    const now = Date.now();
+    console.log("Current time:", now);
+    console.log("Expires at:", user.reset_token_expires);
+    
+    // Check if code matches and hasn't expired
+    if (user.reset_code !== codeString || now > user.reset_token_expires) {
+      console.log("Code mismatch or expired");
+      return res.status(400).json({ message: "Invalid or expired code" });
+    }
+    
+    console.log("Code verified successfully");
+    req.session.resetUserId = user.id;
+    res.status(200).json({ message: "Code verified successfully", redirect: "/reset-password" });
+
+  } catch (error) {
+    console.error('Error verifying reset code', error);
+    res.status(500).json({ message: "Error verifying reset code" });
+  }
+});
+app.post('/reset-password', async (req, res) => {
+  const { newPassword } = req.body;
+  console.log("newPassword:", newPassword);
+  const userId = req.session.resetUserId;
+  if (!userId) {
+    return res.status(400).send("Session expired or invalid");
+  }
+  //hash new password
+  const saltRounds = 10;
+  const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+  //update password in database
+  try{await pool.query(
+    "UPDATE users SET password = $1, reset_code = NULL, reset_token_expires = NULL WHERE id = $2",
+    [hashedPassword, userId]
+    );
+    req.session.resetUserId = null;
+    res.render('samplelogin', { message: "Password reset successful" });
+  }catch(error){
+    console.error('Error resetting password', error);
+    res.status(500).send("Error resetting password");
+  }
+
+});
 // Start the server
 app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
 app.use((req, res, next) => {
