@@ -245,6 +245,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 
+
 app.post('/login', (req, res, next) => {
   console.log("login route accessed");
   const { email, password } = req.body;
@@ -491,4 +492,6 @@ app.post('/signup', async (req, res) => {
 
 // Start the server
 app.listen(PORT, () => console.log(`Server running at http://localhost:${PORT}`));
-
+app.use((req, res, next) => {
+  res.status(404).render('404');
+});

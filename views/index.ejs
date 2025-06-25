@@ -329,7 +329,10 @@ submitEditProfile.addEventListener("click", async (e) => {
   if (shareProfileBtn) {
     shareProfileBtn.addEventListener('click', async () => {
       try {
-        await navigator.clipboard.writeText(window.location.href);
+        // Get the username from the page (EJS variable)
+        const username = '<%= username %>';
+        const shareUrl = `${window.location.origin}/u/${username}`;
+        await navigator.clipboard.writeText(shareUrl);
         shareCopiedMsg.classList.remove('hidden');
         setTimeout(() => shareCopiedMsg.classList.add('hidden'), 1500);
       } catch (e) {
