@@ -94,22 +94,43 @@ const alertDiv = document.getElementById("alertDiv");
 
 signupForm.addEventListener("submit", async (e) => {
   e.preventDefault();
-
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
   const name = document.getElementById("name").value;
   const username = document.getElementById("username").value;
+
+  if (password.length < 6) {
+    alertDiv.classList.remove("hidden");
+    alertDiv.innerHTML = '<span class="block sm:inline">Password must be at least 6 characters long! 🦫</span>';
+    return;
+  }
+
+  if (password !== confirmPassword) {
+    alertDiv.classList.remove("hidden");
+    alertDiv.innerHTML = '<span class="block sm:inline">Passwords don\'t match! 🦫</span>';
+    return;
+  }
+
+  const usernamePattern = /^[a-zA-Z0-9_]{3,15}$/;
+  if (!usernamePattern.test(username)) {
+    alertDiv.classList.remove("hidden");
+    alertDiv.innerHTML = '<span class="block sm:inline">Username must be 3-15 characters and contain only letters, numbers, or underscores. No spaces or special characters allowed. 🦫</span>';
+    return;
+  }
+
+  alertDiv.classList.add("hidden");
+
   const res = await fetch("/signup", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password, name, username })
+    body: JSON.stringify({ email, password, name, username }),
+    credentials: "same-origin"
   });
-
-  const data = await res.json(); 
-
+  const data = await res.json();
   if (res.ok) {
-    console.log("signup successful");
-    location.href = '/';
+    console.log("Signup successful");
+    window.location.href = '/';
   } else {
     alertDiv.classList.remove("hidden");
     alertDiv.innerHTML = `<span class="block sm:inline">${data.message || "Signup failed"}</span>`;

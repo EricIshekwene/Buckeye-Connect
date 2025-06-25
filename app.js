@@ -247,7 +247,7 @@ app.use(passport.session());
 
 
 app.post('/login', (req, res, next) => {
-  console.log("login route accessed");
+  console.log("Login route accessed");
   const { email, password } = req.body;
   
   passport.authenticate('local', (err, user, info) => {
@@ -357,25 +357,20 @@ function ensureAuthenticated(req, res, next) {
 }
 // Home route
 app.get('/links', ensureAuthenticated, async (req, res) => {
-  console.log("GET route accessed");
+  console.log("GET /links route accessed");
   console.log("Database pool status:", pool.totalCount, "total connections");
   
   try {
     // Fetch links
     const result = await pool.query("SELECT * FROM links WHERE user_id = $1 ORDER BY id ASC", [req.user.id]);
-    console.log("result:", result.rows);
     //fetch image
     const imageResult = await pool.query("SELECT profile_image FROM users WHERE id = $1", [req.user.id]);
-    const imageUrl = imageResult.rows[0].profile_image;
-    console.log("imageUrl:", imageUrl);
+    const imageUrl = imageResult.rows[0]?.profile_image || null;
     // Fetch user data for bio and username
     const userResult = await pool.query("SELECT * FROM users WHERE id = $1", [req.user.id]);
     const user = userResult.rows[0];
-    console.log("user:", user);
     const username = user.username;
     const bio = user.bio;
-    console.log("username:", username);
-    console.log("bio:", bio);
 
     // Match with known platforms and return the links with the actual inputs
     const linkIds = result.rows.map(link => link.type_id);
@@ -393,9 +388,7 @@ app.get('/links', ensureAuthenticated, async (req, res) => {
       };
     });
     
-
-
-    console.log("Filtered Added Links:", addedLinks);
+    console.log("Links page rendered successfully");
     res.render('index', { links, addedLinks, username, bio, imageUrl });
 
   } catch (err) {
@@ -407,10 +400,9 @@ app.get('/links', ensureAuthenticated, async (req, res) => {
 
 app.post('/add-link', ensureAuthenticated, async (req, res) => {
   try{const { platform, url, linkName } = req.body;
-  console.log("New link:", platform, url);
+  console.log("Add link route accessed - platform:", platform);
   //find id for link 
   const found = links.find(link => link.value === platform);
-  console.log(found);
   const id = found.id;
   const name = found.name;
   // add link and id to database
@@ -418,14 +410,14 @@ app.post('/add-link', ensureAuthenticated, async (req, res) => {
           await pool.query(
             "INSERT INTO links (type_id, url, name, user_id, user_link_name) VALUES ($1, $2, $3, $4, $5)",  [id, url, name, req.user.id, linkName || name]
           );
-          console.log("Link added to database");
+          console.log("Link added to database successfully");
           res.redirect('/links');
         }catch(error){
           console.error('Error adding link to database', error);
           res.status(500).send("Something went wrong");
         }
       }catch(error){
-        console.error('couldnt hit post', error);
+        console.error('Error in add-link route', error);
         res.status(500).send("couldnt hit post");
       }    
   });
@@ -451,11 +443,11 @@ app.post('/add-link', ensureAuthenticated, async (req, res) => {
   
   
 app.delete('/delete-link', async (req, res) => {
-  console.log("delete link route accessed");
+  console.log("Delete link route accessed");
   try {
     await pool.query("DELETE FROM links WHERE id = $1 AND user_id = $2", [req.body.id, req.user.id]);
     res.status(200).send("Deleted");
-    console.log(`link deleted of id ${req.body.id}`);
+    console.log("Link deleted successfully");
   } catch (error) {
     console.error('Error deleting link', error);
     res.status(500).send("Error deleting link");
@@ -468,24 +460,22 @@ app.delete('/delete-link', async (req, res) => {
 
 
 app.post('/signup', async (req, res) => {
-  console.log("signup route accessed");
+  console.log("Signup route accessed");
   const { email, password, name, username } = req.body;
-  console.log(email, password, name, username);
   try{
     //check if email already exists
     const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
     if (result.rows.length > 0) {
-      console.log("email already exists");
+      console.log("Signup failed - email already exists");
       return res.status(400).json({ message: "Email already exists" });
     }
-
-    
 
     //hash password
     const saltRounds = 10;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     //insert user into database
     await pool.query("INSERT INTO users (email, password, full_name, username, bio) VALUES ($1, $2, $3, $4, $5)", [email, hashedPassword, name, username, "Enter a Bio:"]);
+    console.log("User account created successfully");
     res.status(200).send({ message: "Account created successfully" });
   }catch(error){
     console.error('Error signing up', error);
@@ -511,12 +501,13 @@ async function sendResetCode(email, code) {
 }
 
 app.post('/send-reset-code', async (req, res) => {
-  console.log("send reset code route accessed");
+  console.log("Send reset code route accessed");
   const { email } = req.body;
 
   try {
     const result = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
     if (result.rows.length === 0) {
+      console.log("Password reset failed - email not found");
       return res.status(400).json({ message: "Email not found" });
     }
 
@@ -531,6 +522,7 @@ app.post('/send-reset-code', async (req, res) => {
 
     await sendResetCode(email, resetCode);
 
+    console.log("Password reset code sent successfully");
     res.status(200).json({ message: "Reset code sent" });
 
   } catch (error) {
@@ -544,33 +536,29 @@ app.get('/reset-password', (req, res) => {
 });
 app.post('/verify-reset-code', async (req, res) => {
   const { code } = req.body;
-  console.log("Verifying code:", code);
+  console.log("Verify reset code route accessed");
 
   try {
     // Convert code to string for comparison
     const codeString = code.toString();
-    console.log("Code as string:", codeString);
     
     const result = await pool.query("SELECT * FROM users WHERE reset_code = $1", [codeString]);
-    console.log("Database result:", result.rows);
     
     if (result.rows.length === 0) {
-      console.log("No user found with this code");
+      console.log("Password reset verification failed - invalid code");
       return res.status(400).json({ message: "Invalid code" });
     }
     
     const user = result.rows[0];
     const now = Date.now();
-    console.log("Current time:", now);
-    console.log("Expires at:", user.reset_token_expires);
     
     // Check if code matches and hasn't expired
     if (user.reset_code !== codeString || now > user.reset_token_expires) {
-      console.log("Code mismatch or expired");
+      console.log("Password reset verification failed - code expired");
       return res.status(400).json({ message: "Invalid or expired code" });
     }
     
-    console.log("Code verified successfully");
+    console.log("Password reset code verified successfully");
     req.session.resetUserId = user.id;
     res.status(200).json({ message: "Code verified successfully", redirect: "/reset-password" });
 
@@ -581,7 +569,7 @@ app.post('/verify-reset-code', async (req, res) => {
 });
 app.post('/reset-password', async (req, res) => {
   const { newPassword } = req.body;
-  console.log("newPassword:", newPassword);
+  console.log("Reset password route accessed");
   const userId = req.session.resetUserId;
   if (!userId) {
     return res.status(400).send("Session expired or invalid");
@@ -595,6 +583,7 @@ app.post('/reset-password', async (req, res) => {
     [hashedPassword, userId]
     );
     req.session.resetUserId = null;
+    console.log("Password reset completed successfully");
     res.render('samplelogin', { message: "Password reset successful" });
   }catch(error){
     console.error('Error resetting password', error);
